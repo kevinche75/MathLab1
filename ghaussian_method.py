@@ -1,37 +1,54 @@
 import numpy as np
 
-def transform_to_triangular_matrix(matrix: np.ndarray, method = "row"):
+def transform_to_triangular_matrix(matrix: np.ndarray, matrix_size: int):
 
-    matrix_size = matrix.shape[0]
+    swaps_number = 0
 
     for i in range(matrix_size-1):
 
-        if method == "row":
+        max_column_value_index = np.argmax(np.abs(matrix[i:, i])) + i
 
-            max_row_value = np.argmax(np.abs(matrix[i, i:matrix_size])) + i
-            matrix[:, [i, max_row_value]] = matrix[:, [max_row_value, i]]
-        
-        if method == "column":
+        assert np.abs(matrix[max_column_value_index, i]) != 0, "Однозначаного решения нет"
 
-            max_column_value = np.argmax(np.abs(matrix[i:, i])) + i
-            matrix[[i, max_column_value]] = matrix[[max_column_value, i]]
+        if i != max_column_value_index:
+            matrix[[i, max_column_value_index]] = matrix[[max_column_value_index, i]]
+            swaps_number +=1
 
         for j in range(i, matrix_size-1):
             if matrix[j+1, i] !=0:
                 matrix[j+1] = matrix[j+1] - matrix[i] * matrix[j+1, i] / matrix[i, i]
 
-def comp_determinant(matrix: np.ndarray):
+    return swaps_number
 
-    diagonal = [i for i in range(matrix.shape[0])]
-    return np.prod(matrix[diagonal, diagonal])
+def comp_determinant(matrix: np.ndarray, swaps_number: int, matrix_size: int):
 
-def comp_back_substitution(matrix: np.ndarray):
+    diagonal = [i for i in range(matrix_size)]
+    determinant = np.prod(matrix[diagonal, diagonal])
 
-    matrix_size = matrix.shape[0]
+    return determinant if swaps_number % 2 == 0 else -determinant
 
-    result = np.zeros(matrix_size)
+def comp_back_substitution(matrix: np.ndarray, matrix_size: int):
+
+    decision_vector = np.zeros(matrix_size)
 
     for i in range(matrix_size-1, -1, -1):
-        result[i] = (matrix[i, matrix_size] - np.sum(result * matrix[i, :matrix_size]))/matrix[i,i]
+        decision_vector[i] = (matrix[i, matrix_size] - np.sum(decision_vector * matrix[i, :matrix_size]))/matrix[i,i]
     
-    return result
+    return decision_vector
+
+def comp_residual(source_matrix: np.ndarray, decision_vector: np.ndarray, matrix_size: int):
+    
+    return np.sum(source_matrix[:, :matrix_size] * decision_vector, axis = 1) - source_matrix[:, matrix_size]
+
+def solve_by_ghaussian_method(source_matrix: np.array):
+
+    matrix_size = source_matrix.shape[0]
+
+    transformed_matrix = source_matrix.copy()
+
+    swaps_number = transform_to_triangular_matrix(transformed_matrix, matrix_size)
+    determinant = comp_determinant(transformed_matrix, swaps_number, matrix_size)
+    decision_vector = comp_back_substitution(transformed_matrix, matrix_size)
+    residual = comp_residual(source_matrix, decision_vector, matrix_size)
+
+    return transformed_matrix, determinant, decision_vector, residual
