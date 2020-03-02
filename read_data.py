@@ -70,18 +70,22 @@ def read_console_matrix():
     return origin_array
 
 def create_random_matrix():
-    
 
     try:
         print("Введите размер матрицы")
         matrix_size = int(input())
+        if matrix_size < 1:
+            print("Размер матрицы должен быть > 0")
+            return
         print("Введите границу")
-        border_number = int(input())
+        border_value = float(input())
     except ValueError:
         print("Неправильный формат данных")
         return
-    
+        
+        
+    border_value = np.abs(border_value)
     random_matrix = np.random.rand(matrix_size, matrix_size + 1)
-    random_matrix = random_matrix * border_number
+    random_matrix = random_matrix * border_value * 2 - border_value
     
     return random_matrix

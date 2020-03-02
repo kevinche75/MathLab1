@@ -6,24 +6,38 @@ def transform_to_triangular_matrix(matrix: np.ndarray, matrix_size: int):
 
     for i in range(matrix_size-1):
 
-        max_column_value_index = np.argmax(np.abs(matrix[i:, i])) + i
+        max_column_value_index = find_arg_max(matrix[i:, i]) + i
 
-        assert np.abs(matrix[max_column_value_index, i]) != 0, "Однозначаного решения нет"
+        assert abs(matrix[max_column_value_index, i]) != 0, "Однозначаного решения нет"
 
         if i != max_column_value_index:
             matrix[[i, max_column_value_index]] = matrix[[max_column_value_index, i]]
             swaps_number +=1
 
         for j in range(i, matrix_size-1):
-            if matrix[j+1, i] !=0:
-                matrix[j+1] = matrix[j+1] - matrix[i] * matrix[j+1, i] / matrix[i, i]
+            matrix[j+1] = matrix[j+1] - matrix[i] * matrix[j+1, i] / matrix[i, i]
+        
+        matrix[i+1:,i] = 0
+
+    assert np.abs(matrix[matrix_size-1, matrix_size-1]) != 0, "Однозначного решения нет"
 
     return swaps_number
 
+def find_arg_max(array: np.array):
+    max_arg = 0
+    max_value = abs(array[max_arg])
+    for i in range(1, len(array)):
+        if abs(array[i]) > max_value:
+            max_arg = i
+            max_value = abs(array[i])
+    return max_arg
+
 def comp_determinant(matrix: np.ndarray, swaps_number: int, matrix_size: int):
 
-    diagonal = [i for i in range(matrix_size)]
-    determinant = np.prod(matrix[diagonal, diagonal])
+    determinant = 1
+
+    for i in range(matrix_size):
+        determinant *= matrix[i][i]
 
     return determinant if swaps_number % 2 == 0 else -determinant
 
