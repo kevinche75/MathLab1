@@ -19,7 +19,7 @@ def transform_to_triangular_matrix(matrix: np.ndarray, matrix_size: int):
         
         matrix[i+1:,i] = 0
 
-    assert np.abs(matrix[matrix_size-1, matrix_size-1]) != 0, "Однозначного решения нет"
+    assert abs(matrix[matrix_size-1, matrix_size-1]) != 0, "Однозначного решения нет"
 
     return swaps_number
 
@@ -34,25 +34,30 @@ def find_arg_max(array: np.array):
 
 def comp_determinant(matrix: np.ndarray, swaps_number: int, matrix_size: int):
 
-    determinant = 1
+    determinant = 1 if swaps_number % 2 == 0 else -1
 
     for i in range(matrix_size):
         determinant *= matrix[i][i]
 
-    return determinant if swaps_number % 2 == 0 else -determinant
+    return determinant
 
 def comp_back_substitution(matrix: np.ndarray, matrix_size: int):
 
     decision_vector = np.zeros(matrix_size)
-
+    
     for i in range(matrix_size-1, -1, -1):
-        decision_vector[i] = (matrix[i, matrix_size] - np.sum(decision_vector * matrix[i, :matrix_size]))/matrix[i,i]
+        decision_vector[i] = (matrix[i, matrix_size] - sum(decision_vector * matrix[i, :matrix_size]))/matrix[i,i]
     
     return decision_vector
 
 def comp_residual(source_matrix: np.ndarray, decision_vector: np.ndarray, matrix_size: int):
+
+    residual = np.zeros(matrix_size)
     
-    return np.sum(source_matrix[:, :matrix_size] * decision_vector, axis = 1) - source_matrix[:, matrix_size]
+    for i in range(matrix_size):
+        residual[i] = sum(source_matrix[i, :matrix_size] * decision_vector) - source_matrix[i, matrix_size]
+    
+    return residual
 
 def solve_by_ghaussian_method(source_matrix: np.array):
 
