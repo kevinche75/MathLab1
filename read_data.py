@@ -15,6 +15,9 @@ def read_file_matrix(path: str):
         return
 
     matrix_size = int(origin_array[0])
+    if matrix_size < 1:
+            print("Размер матрицы должен быть > 0")
+            return
     origin_array = origin_array[1:]
 
     try:
@@ -75,6 +78,9 @@ def create_random_matrix():
     try:
         print("Введите размер матрицы")
         matrix_size = int(input())
+        if matrix_size < 1:
+            print("Размер матрицы должен быть > 0")
+            return
         print("Введите границу")
         border_number = int(input())
     except ValueError:
